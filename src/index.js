@@ -46,7 +46,7 @@ searchBtn.addEventListener('mouseout', () => {
 loadingBtn.style.display = 'none';
 
 let PAGE_VALUE = 1;
-const PER_PAGE = 100;
+const PER_PAGE = 40;
 
 const fetchData = async () => {
   try {

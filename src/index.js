@@ -89,10 +89,6 @@ const renderHtml = async () => {
         </div>
       </div>`;
   });
-  // console.log(data.hits);
-  // console.log(data.hits.length);
-  // console.log(data.total);
-  // console.log(data.totalHits);
   gallery.innerHTML += galleryHtml;
   const images = document.querySelectorAll('img');
   Array.from(images).map(image => {

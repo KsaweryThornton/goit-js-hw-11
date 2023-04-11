@@ -1,3 +1,5 @@
+// data.hits to tablica obiektów
+
 import axios from 'axios';
 import Notiflix from 'notiflix';
 
@@ -65,9 +67,10 @@ const fetchData = async () => {
 };
 
 const renderHtml = async () => {
+  gallery.innerHTML = '';
   const data = await fetchData();
   let galleryHtml = '';
-  data.hits.forEach(e => {
+  data.hits.map(e => {
     galleryHtml += `<div class="photo-card">
         <img src="${e.webformatURL}" alt="${e.tags}" loading="lazy" />
         <div class="info">
@@ -86,22 +89,26 @@ const renderHtml = async () => {
         </div>
       </div>`;
   });
+  // console.log(data.hits);
+  // console.log(data.hits.length);
+  // console.log(data.total);
+  // console.log(data.totalHits);
   gallery.innerHTML += galleryHtml;
-  const image = document.querySelectorAll('img');
-  image.forEach(e => {
-    e.style.width = '291px';
-    e.style.height = '200px';
-    e.style.objectFit = 'cover';
-    e.style.objectPosition = 'center';
+  const images = document.querySelectorAll('img');
+  Array.from(images).map(image => {
+    image.style.width = '291px';
+    image.style.height = '200px';
+    image.style.objectFit = 'cover';
+    image.style.objectPosition = 'center';
   });
-  const galleryItem = document.querySelectorAll('div.photo-card');
-  galleryItem.forEach(e => {
+  const galleryItems = document.querySelectorAll('.photo-card');
+  Array.from(galleryItems).map(e => {
     e.style.margin = 'auto';
     e.style.width = '300px';
     e.style.border = 'thick double #9FAACA';
   });
-  const galleryInfo = document.querySelectorAll('div.info');
-  galleryInfo.forEach(e => {
+  const galleryInfo = document.querySelectorAll('.info');
+  Array.from(galleryInfo).map(e => {
     e.style.display = 'flex';
     e.style.textAlign = 'center';
     e.style.fontSize = '15px';
@@ -139,14 +146,30 @@ const renderHtml = async () => {
   } else {
     Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
   }
+
+  return { data, galleryHtml };
 };
 
-loadingBtn.addEventListener('click', () => {
+let maxHits = PER_PAGE;
+
+loadingBtn.addEventListener('click', async () => {
   PAGE_VALUE += 1;
   renderHtml();
+  const { data, galleryHtml } = await renderHtml();
+  const max = (maxHits += data.hits.length);
+  localStorage.setItem('maxHits', JSON.stringify(max));
+  if (maxHits >= data.totalHits) {
+    Notiflix.Notify.warning(
+      "We're sorry, but you've reached the end of search results."
+    );
+    loadingBtn.style.display = 'none';
+  }
 });
 
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async e => {
+  maxHits = PER_PAGE;
+  PAGE_VALUE = 1;
+  localStorage.clear();
   e.preventDefault();
   fetchData();
   renderHtml();
